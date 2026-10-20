@@ -79,8 +79,9 @@ export class Story {
     if (ask) { if (this.r.modal) return; this.r.modal = true; const yes = await say('Paper Crane', null, 'Start the story again from the very beginning?', ['Yes, replay', 'Not now']) === 0; this.r.modal = false; if (!yes) return; }
     this.s = { step: 0, items: [], pieces: 0, flags: {} }; this.save(); location.reload();
   }
-  load() { try { this.s = JSON.parse(localStorage.getItem(KEY)) || null; } catch (e) { this.s = null; } if (!this.s) this.s = { step: 0, items: [], pieces: 0, flags: {} }; }
-  save() { try { localStorage.setItem(KEY, JSON.stringify(this.s)); } catch (e) { /* private mode */ } }
+  // every visit starts the story from the beginning: progress lives only in memory (and old saved progress is wiped)
+  load() { try { localStorage.removeItem(KEY); } catch (e) { /* private mode */ } this.s = { step: 0, items: [], pieces: 0, flags: {} }; }
+  save() { /* nothing is stored between visits */ }
   get step() { return STEPS[this.s.step]; }
   has(i) { return this.s.items.includes(i); }
   give(i) { if (!this.has(i)) this.s.items.push(i); this.save(); this.hud(); }
