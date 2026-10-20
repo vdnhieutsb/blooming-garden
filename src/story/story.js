@@ -23,7 +23,7 @@ const TRAIL = [[505, 868], [492, 925], [520, 975], [610, 1010], [760, 1015], [90
 const PIECES = {
   1: ['Hương,', 'the sea sleeps in a round blue box.', '>The heart opens it.'],
   2: ['Where you meet your own smile every morning,', '>warm water will tell you a secret.'],
-  3: ['Our first trip is locked', '>behind the day that is all about you.'],
+  3: ['Our first trip is locked.', '>The code is the day you were born.'],
   4: ['The last piece sleeps in the dark,', '>under the place where you dream.', 'Take the light.'],
   5: ['Now come outside.', '— H.'],
 };
@@ -44,7 +44,7 @@ const HINTS = {
   mailbox: ['One of the pieces flew out of the front door... I saw it!', 'It went down the steps, towards the stepping stones.', 'There! The mailbox by the stones.'],
   bluebox: ['"The colour of the sea"... and round, I think.', 'Somewhere on the shelves above the desk.', 'This round blue box! The heart key should fit.'],
   mirror: ['Where do you meet your own smile every morning?', 'The bathroom... but mirrors only speak when they are warm.', 'Try the hot tap at the sink!'],
-  suitcase: ['Your first trip... what do people pack for a trip?', 'The suitcase in the clothes nook. Its code is the day that is all about you.', 'Twenty... ten. Two, zero, one, zero!'],
+  suitcase: ['Your first trip... and the day you were born.', 'The suitcase in the clothes nook. Its code is your birthday.', 'Your birthday is 20/10... Two, zero, one, zero!'],
   bed: ['Where do you dream every night?', 'Under your bed. It is dark, so use the flashlight.', 'Move the light slowly under the bed.'],
   garden: ['Follow the glowing petals!', 'Out of the door and along the stones.', 'To the pink tree in the garden!'],
 };
@@ -53,7 +53,7 @@ const EXACT = { mailbox: [548, 930], bluebox: [1008, 470], mirror: [780, 360], s
 // A. what Hương is looking for right now (shown in the clue journal)
 const GOALS = {
   mailbox: 'One piece flew out of the front door...', bluebox: 'Find the box with the colour of the sea.',
-  mirror: 'Where I meet my own smile every morning... warm water.', suitcase: 'Open the suitcase of our first trip: the day that is all about me.',
+  mirror: 'Where I meet my own smile every morning... warm water.', suitcase: 'Open the suitcase of our first trip: the code is my birthday.',
   bed: 'Look in the dark, under the place where I dream.', garden: 'Follow the petals into the garden.',
 };
 // D. Hương thinks aloud near things that are easy to mistake for the answer (once each): [x, y, radius, thought]
@@ -61,7 +61,7 @@ const DECOYS = {
   mailbox: [[600, 700, 110, 'The piece flew out through the front door...'], [330, 660, 110, 'It went past the window... outside?']],
   bluebox: [[1110, 500, 90, 'Blue shirts... but they are not round.'], [600, 600, 120, 'A sea-coloured blanket... but it is not a box.'], [880, 556, 80, 'Something blue up on the shelf...?']],
   mirror: [[330, 660, 110, 'My reflection in the window... but the glass is cold.'], [880, 556, 90, 'The lamp is warm... but the clue said warm water.'], [850, 525, 70, 'The bathroom is right here.']],
-  suitcase: [[650, 470, 100, 'The day that is all about me... my birthday? Twenty... ten.'], [520, 800, 100, 'Our first trip started at this door. Where did we keep the suitcase?']],
+  suitcase: [[650, 470, 100, 'The day I was born... my birthday. Twenty... ten.'], [520, 800, 100, 'Our first trip started at this door. Where did we keep the suitcase?']],
   bed: [[1084, 480, 90, 'The flashlight works. Now, where do I dream?'], [600, 640, 110, 'My bed... it is so dark underneath.']],
 };
 // F. a glint sometimes flashes where the piece is hiding
@@ -251,6 +251,7 @@ export class Story {
   onUse(id) {
     const st = this.step;
     if (id === 'tap' && st === 'mirror') { this.cuMirror(); return true; }
+    if (id === 'door' && this.s.step >= STEPS.indexOf('garden') && this.r.obj.door.on) { this.think('The garden is waiting. Let\'s go outside!'); return true; }   // keep the way out open
     if (this.r.obj[id] && this.r.obj[id].def.type === 'story') {
       if (!this.r.obj[id].def.active || this.r.modal) return true;
       const mine = OBJECTS.find(o => o.id === id).step, i = STEPS.indexOf(mine), now = this.s.step;
