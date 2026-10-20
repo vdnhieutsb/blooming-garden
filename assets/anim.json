@@ -1,0 +1,82 @@
+{
+ "sun": {
+  "file": "assets/anim_sun.png",
+  "frames": 4,
+  "w": 851,
+  "h": 470,
+  "x": 91,
+  "y": 492
+ },
+ "bush": {
+  "file": "assets/anim_bush.png",
+  "frames": 8,
+  "w": 271,
+  "h": 188,
+  "x": 0,
+  "y": 626
+ },
+ "fan": {
+  "file": "assets/anim_fan.png",
+  "frames": 4,
+  "w": 80,
+  "h": 56,
+  "x": 826,
+  "y": 624
+ },
+ "door_main": {
+  "file": "assets/anim_door_main.png",
+  "frames": 8,
+  "w": 220,
+  "h": 300,
+  "x": 340,
+  "y": 610
+ },
+ "door_wc": {
+  "file": "assets/anim_door_wc.png",
+  "frames": 8,
+  "w": 95,
+  "h": 175,
+  "x": 850,
+  "y": 300
+ },
+ "win_l": {
+  "file": "assets/anim_win_l.png",
+  "frames": 6,
+  "w": 160,
+  "h": 170,
+  "x": 140,
+  "y": 480
+ },
+ "win_r": {
+  "file": "assets/anim_win_r.png",
+  "frames": 6,
+  "w": 160,
+  "h": 170,
+  "x": 140,
+  "y": 480
+ },
+ "curt_l": {
+  "file": "assets/anim_curt_l.png",
+  "frames": 6,
+  "w": 32,
+  "h": 124,
+  "x": 148,
+  "y": 476
+ },
+ "curt_r": {
+  "file": "assets/anim_curt_r.png",
+  "frames": 6,
+  "w": 34,
+  "h": 120,
+  "x": 262,
+  "y": 536
+ },
+ "tap": {
+  "file": "assets/anim_tap.png",
+  "frames": 4,
+  "w": 24,
+  "h": 40,
+  "x": 752,
+  "y": 274
+ }
+}
