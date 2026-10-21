@@ -60,7 +60,7 @@ body { font-variant-ligatures:none; font-feature-settings:'liga' 0,'calt' 0; }  
 .paper-hint { margin-top:10px; font-size:15px; color:#bb9274; text-align:right; }
 .paper-layer.full .paper { width:min(92vw,680px); }
 .photo { background:#fdfae6; padding:14px; box-shadow:0 0 0 4px var(--ink),8px 10px 0 4px rgba(27,13,7,.35); transform:rotate(2deg); text-align:center; }
-.photo img { width:min(80vw,540px); image-rendering:pixelated; display:block; }
+.photo img { width:min(80vw,540px,74vh); image-rendering:pixelated; display:block; }   /* also fits short landscape phones */
 .photo-cap { color:#832c04; font-size:24px; margin-top:6px; }
 .close { position:absolute; inset:0; background:rgba(27,13,7,.82); display:grid; place-items:center; opacity:0; transition:opacity .18s; }
 .close.in { opacity:1; }
@@ -70,6 +70,7 @@ body { font-variant-ligatures:none; font-feature-settings:'liga' 0,'calt' 0; }  
 .cu-item.picked { transform:translateY(-30px) scale(1.4); opacity:0; }
 @keyframes glint { 50% { filter:drop-shadow(0 0 3px #fdfae6) brightness(1.15); } }
 .cu-zone { position:absolute; cursor:pointer; }
+.close-stage { isolation:isolate; }   /* keeps the darkness below inside the close-up, never over the photo / letter viewers */
 .cu-canvas { position:absolute; left:0; top:0; image-rendering:pixelated; pointer-events:none; z-index:5; }   /* darkness above the items */
 .close-back { position:absolute; left:16px; top:16px; }
 .hud { position:absolute; left:16px; top:14px; display:flex; align-items:center; gap:10px; background:var(--ink); padding:6px 14px 4px; border:0; font:inherit;
@@ -114,3 +115,4 @@ body { font-variant-ligatures:none; font-feature-settings:'liga' 0,'calt' 0; }  
   .paper::before { left:24px; }
   .hud { font-size:16px; } #help { display:none; }
 }
+.replay-btn.busy { opacity:.35; pointer-events:none; }

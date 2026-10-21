@@ -37,7 +37,7 @@ const NOT_YET = {                                          // looking at a quest
   suitcase: 'Our travel suitcase. It has a 4-digit lock, and I do not know the code.',
   bed: 'It is far too dark under the bed to see anything.',
 };
-const DONE = { mailbox: 'Empty now.', bluebox: 'Just tissue paper left inside.', suitcase: 'Only clothes in here now.', bed: 'Nothing else under there. Just dust and my slippers.' };
+const DONE = { bouquet: 'The most beautiful flowers in the world.', mailbox: 'Empty now.', bluebox: 'Just tissue paper left inside.', suitcase: 'Only clothes in here now.', bed: 'Nothing else under there. Just dust and my slippers.' };
 // B. the crane's hints come in three levels: 1 = the riddle in other words, 2 = the area (the crane circles over it),
 // 3 = the exact object (the crane pecks it, and from then on it keeps a white outline)
 const HINTS = {
@@ -72,7 +72,7 @@ export class Story {
     this.r = room; this.load();
     if (/[?&]story=reset/.test(location.search)) this.s = { step: 0, items: [], pieces: 0, flags: {} };
     this.build(); this.restore(); this.run();
-    replayButton(() => this.replay());
+    replayButton(() => this.replay(), () => this.r.modal && !document.querySelector('.endcard'));
   }
   // 4. start over at any time (also from the end card)
   async replay(ask = true) {
@@ -192,7 +192,7 @@ export class Story {
   update(dt) {
     this.drawNight();
     const r0 = this.r, now = r0.time.now;
-    if (this.thought) { this.thought.setPosition(r0.hero.x, r0.hero.y - 168); if (now > this.thought.getData('until')) { const t = this.thought; this.thought = null; r0.tweens.add({ targets: t, alpha: 0, duration: 250, onComplete: () => t.destroy() }); } }
+    if (this.thought) { this.thought.setPosition(r0.hero.x, r0.hero.y - 168 * Math.min(r0.uiScale || 1, 1.35)).setScale(r0.uiScale || 1); if (now > this.thought.getData('until')) { const t = this.thought; this.thought = null; r0.tweens.add({ targets: t, alpha: 0, duration: 250, onComplete: () => t.destroy() }); } }
     if (!r0.modal) for (const [i, d] of (DECOYS[this.step] || []).entries()) {
       const k = 'th_' + this.step + i; if (this.s.flags[k] || Math.hypot(r0.hero.x - d[0], r0.hero.y - d[1]) > d[2]) continue;
       this.s.flags[k] = true; this.save(); this.think(d[3]); break;
@@ -293,7 +293,8 @@ export class Story {
     if (r.obj.fan.on) r.toggle('fan');
     await talk([['Paper Crane', null, 'Oh no... the wind took it! Five pieces, all over the house.'],
       ['Hương', 'neutral', 'Then we will find all five.'],
-      ['Paper Crane', null, 'I will stay right beside you. Tap me whenever you are stuck!']]);
+      ['Paper Crane', null, 'I will stay right beside you. Tap me whenever you are stuck!'],
+      ['Paper Crane', null, 'And tap the letter at the top of the screen to read every clue you have found.']]);
     await bars(false); this.craneMode = 'follow'; this.advance(); r.modal = false;
   }
   scatter() {
@@ -345,10 +346,11 @@ export class Story {
     const r = this.r; r.modal = true; const f = this.s.flags;
     const cu = new Close('cu_mirror.png'), fog = cu.img('cu_mirror_fog.png', 0, 0, 'fog'); fog.style.opacity = f.steam ? 1 : 0; fog.style.transition = 'opacity 2.6s';
     const piece = () => { if (!f.p3) cu.item('p3', 'it_piece.png', 100, 52, async () => { cu.drop('p3'); f.p3 = true; await this.found(3, cu); this.finishStep(cu); }); };
-    if (f.steam) piece();
+    if (f.steam) { if (f.steamSeen) piece(); else wait(500).then(async () => { if (cu.isClosed) return; f.steamSeen = true; await say('Hương', 'surprised', '"20.10"... and a little heart. Someone wrote on the mirror!'); piece(); }); }
     cu.zone(64, 62, 12, 10, async () => {                  // hot knob
       if (f.steam) return; sfx.water(); f.steam = true; this.save(); fog.style.opacity = 1; await wait(2700);
-      await say('Hương', 'surprised', '"20.10"... and a little heart. Someone wrote on the mirror!'); piece();
+      if (cu.isClosed) return;                              // she walked away before the words appeared
+      f.steamSeen = true; await say('Hương', 'surprised', '"20.10"... and a little heart. Someone wrote on the mirror!'); piece();
     });
     cu.zone(84, 62, 12, 10, () => { sfx.water(); say('Hương', 'neutral', 'Brr... cold water. Nothing happens.'); });
     await cu.closed; r.modal = false;
@@ -435,6 +437,8 @@ export class Story {
     const a = this.anh, b = this.bouquet, h = r.hero, walk = (x, y, ms, dir) => new Promise(res => {
       a.play('anh-walk-' + dir); r.tweens.add({ targets: a, x, y, duration: ms, onUpdate: () => a.setDepth(a.y), onComplete: () => { a.play('anh-idle-' + dir); res(); } }); });
     const hold = () => b.setPosition(a.x - 34, a.y + 6).setDepth(a.y + 2);    // the bouquet in Hiếu's arms
+    const SPOT = [1180, 962];                                // a fixed spot left of the bouquet: Hiếu always has room on her right
+    if (Math.hypot(h.x - SPOT[0], h.y - SPOT[1]) > 8) { r.facing = h.x < SPOT[0] ? 'right' : 'left'; h.play('walk-' + r.facing); await new Promise(res => r.tweens.add({ targets: h, x: SPOT[0], y: SPOT[1], duration: 500, onUpdate: () => h.setDepth(h.y), onComplete: res })); r.cell = r.cellAt(...SPOT); }
     r.facing = 'right'; h.play('idle-right');
     // Hiếu steps out from behind the pink tree and picks the bouquet up
     a.setVisible(true).setPosition(...ANH_FROM); await walk(BOUQUET[0] + 46, BOUQUET[1] + 2, 1300, 'left');

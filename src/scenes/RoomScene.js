@@ -38,7 +38,7 @@ export class RoomScene extends Phaser.Scene {
   fit() {
     const cam = this.cameras.main, vw = this.scale.width, vh = this.scale.height, W = this.L.world[0], H = this.L.world[1];
     const fit = Math.min(vw / W, vh / H); this.follow = vw < 720 || vh < 520;
-    cam.setZoom(this.follow ? Math.max(fit, vw / 760) : fit);
+    cam.setZoom(this.follow ? Math.max(fit, Math.min(vw / 760, vh / 620)) : fit);   // phones: about 760 x 620 world px around Hương (landscape no longer zooms into her face)
     if (this.follow) { cam.setBounds(0, 0, W, H); cam.startFollow(this.hero, true, 0.12, 0.12); } else { cam.stopFollow(); cam.setBounds(-1e5, -1e5, 2e5, 2e5); cam.centerOn(W / 2, H / 2); }
   }
   // ---- ambient motion: dappled sun on the floor and porch, swaying bush, dust motes in the light
@@ -242,7 +242,7 @@ export class RoomScene extends Phaser.Scene {
   popLabel(text) {
     if (text === this.lastLabel) return; this.lastLabel = text; this.tweens.killTweensOf(this.label);
     if (!text) { this.label.setVisible(false); return; }
-    this.label.setText(text).setVisible(true).setScale(0); this.tweens.add({ targets: this.label, scale: 1, duration: 200, ease: 'Back.easeOut' });
+    this.label.setText(text).setVisible(true).setScale(0); this.tweens.add({ targets: this.label, scale: this.uiScale || 1, duration: 200, ease: 'Back.easeOut' });
   }
   nearObject() { return this.L.objects.find(o => this.isNear(o)) || null; }
   update(t, dt) {
@@ -259,7 +259,8 @@ export class RoomScene extends Phaser.Scene {
     const near = this.modal ? null : this.nearObject(); this.updateFeedback(near);   // no prompts during story scenes
     if (this.label.visible && !near && this.lastLabel.startsWith('E · ')) this.popLabel('');
     if (near && !moving) this.popLabel('E · ' + this.label_of(near)); else if (moving && this.lastLabel.startsWith('E · ')) this.popLabel('');
-    if (this.label.visible) this.label.setPosition(this.hero.x, this.hero.y - 158);
+    this.uiScale = Math.max(1, 0.85 / this.cameras.main.zoom);   // world labels stay readable when the camera is zoomed out (phones)
+    if (this.label.visible) this.label.setPosition(this.hero.x, this.hero.y - 158 * Math.min(this.uiScale, 1.35));
     if (this.story) this.story.update(dt);
   }
   // the 4 grid directions turn the LPC views by 45 degrees: +X (down-right) right, -X (up-left) left, +Y (up-right) up, -Y (down-left) down

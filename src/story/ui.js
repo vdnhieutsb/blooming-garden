@@ -71,7 +71,7 @@ export class Close {
     this.stage = el('div', 'close-stage', this.layer); this.stage.style.width = 160 * this.k + 'px'; this.stage.style.height = 100 * this.k + 'px';
     this.bg = this.img(bg, 0, 0); this.items = {};
     this.back = el('button', 'pbtn close-back', this.layer, '&#9664; Back');
-    this.closed = new Promise(res => { this.back.onpointerdown = (e) => { e.stopPropagation(); sfx.click(); this.close(); }; this._res = res; });
+    this.isClosed = false; this.closed = new Promise(res => { this.back.onpointerdown = (e) => { e.stopPropagation(); sfx.click(); this.close(); }; this._res = res; });
     this.layer.addEventListener('pointerdown', e => e.stopPropagation());
     requestAnimationFrame(() => this.layer.classList.add('in')); sfx.click();
   }
@@ -81,7 +81,7 @@ export class Close {
   drop(id) { const i = this.items[id]; if (i) { i.classList.add('picked'); setTimeout(() => i.remove(), 250); delete this.items[id]; } }
   zone(x, y, w, h, cb) { const z = el('div', 'cu-zone', this.stage); Object.assign(z.style, { left: x * this.k + 'px', top: y * this.k + 'px', width: w * this.k + 'px', height: h * this.k + 'px' }); z.onpointerdown = (e) => { e.stopPropagation(); cb(z); }; return z; }
   canvas() { const c = el('canvas', 'cu-canvas', this.stage); c.width = 160 * this.k; c.height = 100 * this.k; return c; }
-  async close() { this.layer.classList.remove('in'); await wait(180); this.layer.remove(); this._res(); }
+  async close() { if (this.isClosed) return; this.isClosed = true; this.layer.classList.remove('in'); await wait(180); this.layer.remove(); this._res(); }
 }
 
 // ---- HUD: letter pieces found + items
@@ -94,8 +94,9 @@ export function setHud(pieces, items, onOpen, show = true) {
 }
 
 // ---- replay button (top right, next to the sound button)
-export function replayButton(onPress) {
+export function replayButton(onPress, busy) {
   const b = el('button', 'replay-btn', null, '&#8634;'); b.title = 'Replay from the beginning';
+  setInterval(() => b.classList.toggle('busy', !!busy()), 250);
   b.onpointerdown = (e) => { e.stopPropagation(); sfx.click(); onPress(); };
 }
 
